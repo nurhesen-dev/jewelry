@@ -286,7 +286,9 @@
     const tabVideo = document.getElementById('tab-video');
     tabPhotos.addEventListener('click', () => { tabPhotos.classList.add('active'); tabVideo.classList.remove('active'); setMainImage(mainImg.src || thumbs[0]); });
     tabVideo.addEventListener('click', () => { tabVideo.classList.add('active'); tabPhotos.classList.remove('active'); showVideo(); });
-
+tabVideo.classList.add('active'); 
+tabPhotos.classList.remove('active'); 
+showVideo(); 
     // === Pricing logic ===
     const basePrice = 79.00;
     const state = { packPrice: 0, discount: 0, qty: 1 };
