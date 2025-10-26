@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Məhsul Səhifəsi — Bijuteriya</title>
+  <style>
+    :root {
+      --bg: #0e0f12;
+      --panel: #151821;
+      --muted: #8f98b2;
+      --text: #e8ecf4;
+      --accent: #7aa2ff;
+      --ok: #39d98a;
+      --warn: #ffcc66;
+      --err: #ff6b6b;
+      --border: #23283a;
+      --chip: #202538;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: radial-gradient(1200px 800px at 80% -10%, #1b1f2e 0%, #0e0f12 50%), var(--bg);
+      color: var(--text); font: 15px / 1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, "Helvetica Neue", sans-serif;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    .container { max-width: 1200px; margin: 24px auto; padding: 16px; }
+    .grid {
+      display: grid; gap: 16px;
+      grid-template-columns: 1.2fr 1fr;
+    }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: linear-gradient(180deg, #171b27, #121521); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .card h2, .card h3 { margin: 0 0 10px; }
+    .card-header { padding: 16px 18px; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .card-body { padding: 16px 18px; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+
+    /* Media gallery */
+    .media { display: grid; gap: 12px; }
+    .media-top { background: #0c0e16; border: 1px solid var(--border); border-radius: 12px; min-height: 360px; display: grid; place-items: center; overflow: hidden; position: relative; }
+    .media-top img, .media-top video { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .media-top img.active, .media-top video.active { display: block; }
+    .media-tabs { display: flex; gap: 8px; }
+    .tab { padding: 6px 10px; border-radius: 999px; background: var(--chip); border: 1px solid var(--border); cursor: pointer; font-weight: 600; }
+    .tab.active { outline: 2px solid var(--accent); }
+
+    .thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .thumb { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; height: 68px; background: #101322; cursor: pointer; position: relative; }
+    .thumb::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 2px transparent; transition: .2s; }
+    .thumb:hover::after { box-shadow: inset 0 0 0 2px var(--accent); }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border: 1px solid var(--border); background: var(--chip); color: var(--text);
+      padding: 8px 12px; border-radius: 999px; cursor: pointer; font-weight: 600; display:flex; align-items:center; gap:8px;
+    }
+    .chip .swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); box-shadow: 0 0 0 2px rgba(0,0,0,.2) inset; }
+    .chip.active { outline: 2px solid var(--accent); }
+
+    label { display: block; margin: 10px 0 6px; font-weight: 700; }
+    input[type="text"], input[type="file"], textarea {
+      width: 100%; background: #0c0f19; border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: 10px 12px; outline: none;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+
+    .inline { display:flex; gap: 8px; align-items: center; }
+    .hint { font-size: 12px; color: var(--muted); }
+
+    .radio-list { display: grid; gap: 8px; }
+    .radio-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: #0e1220; }
+
+    .price-box { background: #0b0e18; border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: grid; gap: 6px; }
+    .price-line { display: flex; align-items: center; justify-content: space-between; color: var(--muted); }
+    .price-line strong { color: var(--text); }
+    .price-total { font-size: 20px; font-weight: 800; display:flex; align-items:center; justify-content:space-between; margin-top: 8px; }
+
+    .actions { display:flex; gap: 10px; align-items:center; }
+    .btn { border: none; padding: 12px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+    .btn-primary { background: linear-gradient(180deg, #84a9ff, #507bff); color: #0b0e18; box-shadow: 0 10px 18px rgba(122,162,255,.25); }
+    .btn-ghost { background: #1a1f2e; color: var(--text); border: 1px solid var(--border); }
+
+    .msg { font-size: 13px; margin-top: 6px; }
+    .msg.ok { color: var(--ok); }
+    .msg.err { color: var(--err); }
+
+    /* Dialog (summary) */
+    dialog { border: 1px solid var(--border); background: #121521; color: var(--text); border-radius: 14px; padding: 0; width: min(560px, 92vw); }
+    dialog::backdrop { background: rgba(0,0,0,.6); }
+    .dlg-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .dlg-body { padding: 16px; display:grid; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header style="margin-bottom:16px">
+      <h1 style="margin:0 0 4px; font-size: 24px;">Səhifə 1 — Məhsul Səhifəsi</h1>
+      <div class="muted">UI spesifikasiya üzrə işlək prototip (MVP). Media + variantlar + əlavə sahələr + kupon + paket seçimi + dinamik cəm.</div>
+    </header>
+
+    <section class="grid" aria-label="Məhsul konteyneri">
+      <!-- Left: Media + Qutu/Paket seçimi -->
+      <div class="card">
+        <div class="card-header">
+          <strong>Media</strong>
+          <div class="media-tabs" role="tablist">
+            <button type="button" class="tab active" id="tab-photos" aria-selected="true">Şəkillər</button>
+            <button type="button" class="tab" id="tab-video" aria-selected="false">Video</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="media">
+            <div class="media-top" aria-live="polite">
+              <!-- Main image/video -->
+              <img id="mainImg" class="active" alt="Məhsul şəkli" src="" />
+              <video id="mainVid" preload="metadata" controls muted loop playsinline title="Məhsul videosu">
+                <!-- TODO: Video faylı əlavə edin (MP4) -->
+                <source id="vidSrc" src="./jewelry.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="thumbs" id="thumbs" aria-label="Şəkil qalereyası">
+              <!-- Thumbnails (placeholder data URI images) -->
+            </div>
+
+            <div>
+              <h3 style="margin: 8px 0 10px;">Qablaşdırma üçün qutu növü</h3>
+              <div class="radio-list" id="packRadios">
+                <label class="radio-item">
+                  <input type="radio" name="pack" value="none" data-price="0" checked />
+                  <div>
+                    <div><strong>Standart qutu</strong> — əlavə ödəniş yoxdur</div>
+                    <div class="muted">Sadə mühafizə qutusu</div>
+                  </div>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="pack" value="gift" data-price="10" />
+                  <div>
+                    <div><strong>Hədiyyə qutusu</strong> — +10₼</div>
+                    <div class="muted">Hədiyyəlik lent və kart</div>
+                  </div>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="pack" value="premium" data-price="20" />
+                  <div>
+                    <div><strong>Premium qutu</strong> — +20₼</div>
+                    <div class="muted">Məxmər kisə və bərk qutu</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Details & Options -->
+      <form class="card" id="productForm" novalidate>
+        <div class="card-header">
+          <div>
+            <h2>“Luna” Bijuteriya Dəsti</h2>
+            <div class="muted">Məhsul kodu: <span id="sku">LUNA-1023</span></div>
+          </div>
+          <div class="price-box" style="min-width: 230px;">
+            <div class="price-line"><span>Əsas qiymət</span><strong><span id="basePrice">79.00</span>₼</strong></div>
+            <div class="price-line"><span>Qutu əlavə</span><strong><span id="packPrice">0.00</span>₼</strong></div>
+            <div class="price-line"><span>Endirim</span><strong>-<span id="discount">0.00</span>₼</strong></div>
+            <div class="price-total"><span>Cəmi</span><span id="grand">79.00₼</span></div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Rəng seçimi -->
+          <label for="colorGroup">Rəng seçimi <span class="muted">(məcburi)</span></label>
+          <div id="colorGroup" class="chips" role="radiogroup" aria-label="Rəng seçimi">
+            <button type="button" class="chip" data-value="Qızılı"><span class="swatch" style="background:#d4af37"></span>Qızılı</button>
+            <button type="button" class="chip" data-value="Gümüşü"><span class="swatch" style="background:#c0c0c0"></span>Gümüşü</button>
+            <button type="button" class="chip" data-value="Qara"><span class="swatch" style="background:#111"></span>Qara</button>
+            <button type="button" class="chip" data-value="Roz Qızıl"><span class="swatch" style="background:#e6b7a9"></span>Roz Qızıl</button>
+          </div>
+          <input type="hidden" id="color" name="color" required />
+          <div id="colorMsg" class="msg err" style="display:none">Zəhmət olmasa rəng seçin.</div>
+
+          <!-- Əlavə yazı (engraving) -->
+          <label for="customText">Əlavə yazı (istəyə görə)</label>
+          <textarea id="customText" name="customText" placeholder="Məs.: “Sevgi ilə”"></textarea>
+          <div class="hint">Əgər məhsul üzərinə yazı istəyirsinizsə, mətninizi daxil edin (maks. 80 simvol).</div>
+
+          <!-- Şrift/Qrafik qeydləri -->
+          <label for="fontNotes">Şrift / qrafik qeydləri (istəyə görə)</label>
+          <textarea id="fontNotes" name="fontNotes" placeholder="Məs.: Serif şrift, kiçik ölçü, mərkəzdə"></textarea>
+
+          <!-- Şəkil yüklə (yalnız JPG) -->
+          <label for="customImg">Şəkil yüklə (yalnız JPG)</label>
+          <input id="customImg" type="file" accept=".jpg,.jpeg,image/jpeg" />
+          <div class="hint">Maks. 5MB, min. 1000×1000px. PNG/WebP qəbul edilmir.</div>
+          <div id="imgMsg" class="msg err" style="display:none"></div>
+
+          <!-- Kupon -->
+          <div class="row">
+            <div>
+              <label for="coupon">Endirim kodu</label>
+              <div class="inline">
+                <input id="coupon" type="text" placeholder="Məs.: ENDIRIM10" />
+                <button class="btn btn-ghost" id="applyCoupon" type="button">Tətbiq et</button>
+              </div>
+              <div id="couponMsg" class="msg muted">Nümunə: <strong>ENDIRIM10</strong> → 10% endirim.</div>
+            </div>
+            <div>
+              <label for="qty">Miqdar</label>
+              <input id="qty" type="text" inputmode="numeric" value="1" />
+              <div class="hint">Miqdar yalnız nümunə üçündür (MVP).</div>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top: 14px;">
+            <button class="btn btn-primary" type="submit">Sifariş et</button>
+            <button class="btn btn-ghost" type="button" id="resetBtn">Sıfırla</button>
+          </div>
+          <div class="hint" style="margin-top:8px">Sifariş təsdiqi növbəti addımda (Səbət/Çatdırılma) tamamlanır.</div>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- Summary dialog -->
+  <dialog id="summaryDlg" aria-labelledby="dlgTitle">
+    <div class="dlg-header">
+      <strong id="dlgTitle">Seçimləriniz</strong>
+      <button class="btn btn-ghost" type="button" onclick="summaryDlg.close()">Bağla</button>
+    </div>
+    <div class="dlg-body" id="summaryBody"></div>
+  </dialog>
+
+  <script>
+    // === Demo data (thumbnails as simple patterned SVG data URIs) ===
+    const demoThumb = (hue) => {
+      const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 68'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='hsl(${hue},70%,16%)'/><stop offset='1' stop-color='hsl(${hue},70%,24%)'/></linearGradient></defs><rect width='100' height='68' fill='url(#g)'/><circle cx='75' cy='30' r='12' fill='hsla(${hue},80%,70%,.5)'/><rect x='12' y='18' width='52' height='32' rx='6' fill='hsla(${hue},90%,80%,.2)' stroke='hsla(${hue},90%,80%,.4)'/></svg>`);
+      return `data:image/svg+xml;charset=utf-8,${svg}`;
+    };
+
+    const thumbs = [20, 50, 200, 260, 320].map(demoThumb);
+    const thumbsEl = document.getElementById('thumbs');
+    thumbs.forEach((src, i) => {
+      const t = document.createElement('div');
+      t.className = 'thumb';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = 'Məhsul şəkli ' + (i+1);
+      t.appendChild(img);
+      t.addEventListener('click', () => setMainImage(src));
+      thumbsEl.appendChild(t);
+    });
+
+    const mainImg = document.getElementById('mainImg');
+    const mainVid = document.getElementById('mainVid');
+    const vidSrc = document.getElementById('vidSrc');
+
+    function setMainImage(src){
+      mainVid.classList.remove('active');
+      mainImg.classList.add('active');
+      mainImg.src = src;
+      pauseVideo();
+    }
+
+    function showVideo(){
+      if(!vidSrc.src){
+        // No demo video provided — show a placeholder frame using a data URL image
+        mainVid.removeAttribute('poster');
+      }
+      mainImg.classList.remove('active');
+      mainVid.classList.add('active');
+      try { mainVid.play(); } catch(e){}
+    }
+
+    function pauseVideo(){ try { mainVid.pause(); } catch(e){} }
+
+    // Initialize main image
+    setMainImage(thumbs[0]);
+
+    // Tabs
+    const tabPhotos = document.getElementById('tab-photos');
+    const tabVideo = document.getElementById('tab-video');
+    tabPhotos.addEventListener('click', () => { tabPhotos.classList.add('active'); tabVideo.classList.remove('active'); setMainImage(mainImg.src || thumbs[0]); });
+    tabVideo.addEventListener('click', () => { tabVideo.classList.add('active'); tabPhotos.classList.remove('active'); showVideo(); });
+
+    // === Pricing logic ===
+    const basePrice = 79.00;
+    const state = { packPrice: 0, discount: 0, qty: 1 };
+
+    const basePriceEl = document.getElementById('basePrice');
+    const packPriceEl = document.getElementById('packPrice');
+    const discountEl = document.getElementById('discount');
+    const grandEl = document.getElementById('grand');
+
+    basePriceEl.textContent = basePrice.toFixed(2);
+
+    function recalc(){
+      const qty = state.qty || 1;
+      const subtotal = (basePrice * qty) + state.packPrice;
+      const discount = Math.min(state.discount, subtotal);
+      const total = Math.max(subtotal - discount, 0);
+      packPriceEl.textContent = state.packPrice.toFixed(2);
+      discountEl.textContent = discount.toFixed(2);
+      grandEl.textContent = total.toFixed(2) + '₼';
+    }
+
+    // Package radios
+    document.querySelectorAll('input[name="pack"]').forEach(r => {
+      r.addEventListener('change', () => {
+        state.packPrice = parseFloat(r.dataset.price || '0');
+        recalc();
+      });
+    });
+
+    // Quantity
+    const qtyEl = document.getElementById('qty');
+    qtyEl.addEventListener('input', () => {
+      const v = parseInt(qtyEl.value.replace(/\D/g, ''), 10);
+      state.qty = isNaN(v) || v < 1 ? 1 : v > 99 ? 99 : v;
+      qtyEl.value = String(state.qty);
+      recalc();
+    });
+
+    // Coupon
+    const applyBtn = document.getElementById('applyCoupon');
+    const couponEl = document.getElementById('coupon');
+    const couponMsg = document.getElementById('couponMsg');
+    applyBtn.addEventListener('click', () => {
+      const code = (couponEl.value || '').trim().toUpperCase();
+      let pct = 0;
+      if(code === 'ENDIRIM10') pct = 10; // demo
+      if(code === 'ENDIRIM25') pct = 25; // demo 2
+      if(pct > 0){
+        // Discount applies on base * qty only (not on packaging)
+        const discBase = basePrice * (state.qty || 1);
+        state.discount = +(discBase * pct / 100).toFixed(2);
+        couponMsg.textContent = pct + '% endirim tətbiq olundu.';
+        couponMsg.className = 'msg ok';
+      } else {
+        state.discount = 0;
+        couponMsg.textContent = 'Keçərsiz kupon. Nümunə: ENDIRIM10';
+        couponMsg.className = 'msg err';
+      }
+      recalc();
+    });
+
+    // Color chips
+    const colorHidden = document.getElementById('color');
+    const colorMsg = document.getElementById('colorMsg');
+    const colorGroup = document.getElementById('colorGroup');
+    colorGroup.addEventListener('click', (e) => {
+      const btn = e.target.closest('.chip');
+      if(!btn) return;
+      colorGroup.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      colorHidden.value = btn.dataset.value;
+      colorMsg.style.display = 'none';
+    });
+
+    // Image validation
+    const imgInput = document.getElementById('customImg');
+    const imgMsg = document.getElementById('imgMsg');
+    imgInput.addEventListener('change', () => {
+      imgMsg.style.display = 'none';
+      const f = imgInput.files && imgInput.files[0];
+      if(!f) return; // optional
+      const okType = /jpe?g$/i.test(f.name) || f.type === 'image/jpeg';
+      if(!okType){ imgMsg.textContent = 'Yalnız JPG faylı qəbul edilir.'; imgMsg.style.display='block'; imgInput.value=''; return; }
+      if(f.size > 5 * 1024 * 1024){ imgMsg.textContent = 'Fayl 5MB-dan kiçik olmalıdır.'; imgMsg.style.display='block'; imgInput.value=''; return; }
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.getElementById('productForm').reset();
+      state.packPrice = 0; state.discount = 0; state.qty = 1;
+      couponMsg.textContent = 'Nümunə: ENDIRIM10 → 10% endirim.'; couponMsg.className = 'msg muted';
+      colorHidden.value = ''; colorGroup.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      recalc();
+    });
+
+    // Submit → show summary (acts like going to next page in MVP)
+    const form = document.getElementById('productForm');
+    const summaryDlg = document.getElementById('summaryDlg');
+    const summaryBody = document.getElementById('summaryBody');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // Validation: color required
+      if(!colorHidden.value){ colorMsg.style.display = 'block'; colorGroup.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+      // Optional image already validated on change
+
+      const data = {
+        ad: '“Luna” Bijuteriya Dəsti',
+        kod: document.getElementById('sku').textContent.trim(),
+        reng: colorHidden.value,
+        yazi: (document.getElementById('customText').value || '').trim(),
+        shrift: (document.getElementById('fontNotes').value || '').trim(),
+        qutu: (document.querySelector('input[name="pack"]:checked')?.value || 'none'),
+        miqdar: state.qty,
+        qiymet: basePrice,
+        qutuElave: state.packPrice,
+        endirim: state.discount,
+        cemi: parseFloat(grandEl.textContent)
+      };
+
+      // Build human-readable summary
+      const qutuMap = { none: 'Standart qutu', gift: 'Hədiyyə qutusu', premium: 'Premium qutu' };
+      const lines = [
+        `<strong>Məhsul:</strong> ${data.ad} <span class='muted'>(kod: ${data.kod})</span>`,
+        `<strong>Rəng:</strong> ${data.reng}`,
+        data.yazi ? `<strong>Əlavə yazı:</strong> ${data.yazi}` : `<span class='muted'>Əlavə yazı yoxdur</span>`,
+        data.shrift ? `<strong>Şrift/qrafik:</strong> ${data.shrift}` : `<span class='muted'>Şrift qeydi yoxdur</span>`,
+        `<strong>Qutu:</strong> ${qutuMap[data.qutu]}`,
+        `<strong>Miqdar:</strong> ${data.miqdar}`,
+        `<strong>Cəmi:</strong> ${data.cemi.toFixed(2)}₼`
+      ];
+      summaryBody.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
+      summaryDlg.showModal();
+    });
+
+    // Initial calc
+    recalc();
+  </script>
+</body>
+</html>
